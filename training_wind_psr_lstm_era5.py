@@ -64,6 +64,8 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+from netCDF4 import Dataset
+from scipy.interpolate import RegularGridInterpolator
 
 #####################################
 #####################################
@@ -94,37 +96,36 @@ from wind_trainer import Trainer, RNNTrainer, LSTMTrainer
 ######################################
 
 # Example usage
-nc_file_path = '/Users/tienansu/Documents/UFZ/era5_nc/Germany_2020_with_ws.nc'
+nc_file_path = 'Germany_2020_with_ws.nc'
 csv_file_path = 'Results_2020_REMix_ReSTEP_hourly_REF.csv'
 
 # Extract pressure data
 pressure_data, grid_lats, grid_lons = extract_pressure_for_germany(nc_file_path)
 
+print(f"Shape of extracted pressure: {pressure_data.shape}")
+print(f"Sample of extracted pressure (first 5 time steps, first 5 locations):\n{pressure_data[:5, :5]}")
 
-
-# Example usage
-# nc_file_path = 'nc_files/Klima_Daten_10m_3h_2020_RCP26.nc'
-csv_file_path = 'Results_2020_REMix_ReSTEP_hourly_REF.csv'
 
 wind_speeds, grid_lats, grid_lons = extract_wind_speed_for_germany(nc_file_path)
 
 
-
 print(f"Shape of extracted wind speed: {wind_speeds.shape}")
-print(f"Sample of extracted wind speed (first 5 time steps, first 5 locations):")
+print(f"Sample of extracted wind speed (first 5 time steps, first 5 locations):\n{wind_speeds[:5, :5]}")
 
 
 temperature_data, grid_lats, grid_lons = extract_temperature_for_germany(nc_file_path)
 
 print("Shape of extracted temperature:", temperature_data.shape)
 print("First 5 values:\n", temperature_data[:, :5])  
-print("First time step pressure map:\n", temperature_data[0])
+print("First time step temperature map:\n", temperature_data[0])
+print(f"Sample of extracted temperature (first 5 time steps, first 5 locations):\n{temperature_data[:5, :5]}")
 
 
 target_points = load_real_wind_csv(csv_file_path)
-interpolated_wind_speeds = interpolate_wind_speed(wind_speeds, grid_lats, grid_lons, target_points)
 
 scaled_unix_time_array, filtered_x_y, filtered_wind_power = loading_wind()
+
+interpolated_wind_speeds = interpolate_wind_speed(wind_speeds, grid_lats, grid_lons, target_points)
 
 interpolated_pressure = interpolate_pressure(pressure_data, grid_lats, grid_lons, target_points)
 
@@ -135,13 +136,11 @@ interpolated_temperature = interpolated_temperature - 273.15 # now in °C
 
 scaled_wind_speeds = scale_interpolated_data(interpolated_wind_speeds)
 
-
 scaled_pressure = scale_interpolated_data(interpolated_pressure)
 
 scaled_temperature = scale_interpolated_data(interpolated_temperature)
 
 scaled_wind_power = scale_interpolated_data(filtered_wind_power)
-
 
 scaled_target_points = scale_target_points(target_points)
 
@@ -159,6 +158,8 @@ combined_array = combine_data(scaled_target_points, scaled_unix_time_array,
                               scaled_pressure,
                               scaled_temperature,
                               scaled_wind_power)
+
+
 
 
 ############################################################
