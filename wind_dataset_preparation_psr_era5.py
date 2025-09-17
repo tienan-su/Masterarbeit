@@ -462,7 +462,7 @@ def combine_data(normalized_x_y, scaled_unix_time_array,
     Parameters:
     - normalized_x_y (np.array): The normalized x and y coordinates (shape: (232, 2)).
     - scaled_unix_time_array (np.array): The scaled Unix timestamps (shape: (2928, 1)).
-    - scaled_wind_power (np.array): The filtered wind power data (shape: (232, 2928 )).
+    - scaled_wind_power (np.array): The filtered wind power data (shape: (232, 2928)).
 
     Returns:
     - np.array: Combined array with shape (232*2928, 3).
