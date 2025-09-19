@@ -40,7 +40,7 @@ from siren_modules import Siren
 
 
 
-from wind_loop_process import WindLoopProcessor
+# from wind_loop_process import WindLoopProcessor
 
 from wind_loss import wind_loss_func
 
