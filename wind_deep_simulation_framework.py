@@ -409,3 +409,38 @@ class CNN_BiLSTM(nn.Module):
 
         return model, optimizer, scheduler
 
+
+
+
+##########################################
+##########################################
+
+import copy
+
+class FLServer:
+    def __init__(self, global_model):
+        self.global_model = global_model
+
+    def aggregate_model_params(self, client_params_list):
+        """Aggregate client model parameters by averaging."""
+        # Initialize the aggregation with the first client's model parameters
+        aggregated_params = copy.deepcopy(client_params_list[0])
+
+        # Loop through remaining client parameters and average them
+        for key in aggregated_params.keys():
+            for client_params in client_params_list[1:]:
+                aggregated_params[key] += client_params[key]
+            aggregated_params[key] = aggregated_params[key] / len(client_params_list)
+
+        return aggregated_params
+
+    def update_global_model(self, aggregated_params):
+        """Update the global model with aggregated parameters."""
+        self.global_model.load_state_dict(aggregated_params)
+
+    def send_global_model_to_clients(self, clients):
+        """Send the global model's updated parameters to each client."""
+        global_model_params = self.global_model.state_dict()
+        for client in clients:
+            client.model.load_state_dict(global_model_params)
+
